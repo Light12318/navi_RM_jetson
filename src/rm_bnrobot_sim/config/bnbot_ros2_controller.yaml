@@ -1,0 +1,51 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # 与Gazebo插件update_rate保持一致
+    use_sim_time: true
+    #关节状态广播器(URDF完全一致）
+    bnbot_joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+      use_sim_time: true
+      joints:
+        - front_left_wheel_joint
+        - front_right_wheel_joint
+        - rear_left_wheel_joint
+        - rear_right_wheel_joint
+    #力控控制器
+    bnbot_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+
+
+
+# 力控控制器参数
+bnbot_effort_controller:
+  ros__parameters:
+    joints: 
+      - front_left_wheel_joint
+      - front_right_wheel_joint
+      - rear_left_wheel_joint
+      - rear_right_wheel_joint
+    command_interfaces:
+      - effort  # 与URDF中joint的effort接口匹配
+    state_interfaces:
+      - position
+      - velocity
+      - effort
+    # 力矩限制：根据轮子质量设置（0.1kg的轮子用0.1N·m足够）
+    max_effort:
+      front_left_wheel_joint: 0.1
+      front_right_wheel_joint: 0.1
+      rear_left_wheel_joint: 0.1
+      rear_right_wheel_joint: 0.1
+
+
+# 麦克纳姆轮专属物理参数
+bnbot_mecanum_config:
+  ros__parameters:
+    wheel_radius: 0.055   
+    wheel_separation_width: 0.47  # 左右轮距
+    wheel_separation_length: 0.47  # 前后轮距
+    # 速度限制：
+    max_linear_x: 0.3    # 最大前后速度
+    max_linear_y: 0.2    # 最大横向速度（比前后慢，增加稳定性）
+    max_angular_z: 1.0   # 最大旋转速度

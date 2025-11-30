@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+   <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/common_inertia.xacro" />
+   
+    <xacro:macro name="wheel_xacro" params="wheel_name xyz yaw axis">
+        <link name="${wheel_name}_wheel_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="1.57079 0 ${yaw}" />
+                <geometry>
+                    <cylinder length="0.04" radius="0.055" /> 
+                </geometry>
+                <material name="black">
+                    <color rgba="0.0 0.0 0.0 0.8"/>
+                </material>
+            </visual>
+            
+            <collision>
+                <origin xyz="0 0 0" rpy="1.57079 0 ${yaw}" />
+                <geometry>
+                    <cylinder length="0.04" radius="0.055" />
+                </geometry>
+            </collision>
+            
+            <xacro:cylinder_inertia m="0.1" h="0.04" r="0.055"/> 
+        </link>
+        
+        <!-- Gazebo物理参数 -->
+        <gazebo reference="${wheel_name}_wheel_link">
+            <!-- 摩擦系数：mu1=横向（辊子方向），mu2=纵向（轴线方向） -->
+            <mu1 value="1.0" /> 
+            <mu2 value="1.0" /> 
+            
+            <!-- 接触刚度/阻尼 -->
+            <kp value="30000.0" /> 
+            <kd value="15.0" />    
+            
+            <!-- 滚动摩擦 -->
+            <rolling_friction value="0.001" /> 
+            <slip1 value="0.005" /> 
+            <slip2 value="0.005" />
+            
+            <material>Gazebo/Black</material>
+        </gazebo>
+
+        <!-- 关节定义 -->
+        <joint name="${wheel_name}_wheel_joint" type="continuous">
+            <parent link="base_link" />
+            <child link="${wheel_name}_wheel_link" />
+            <origin xyz="${xyz}" /> 
+            <axis xyz="${axis}" /> 
+            
+            <!-- 动力学参数-->
+            <dynamics damping="0.8" friction="0.05" /> 
+            
+            <limit effort="100" velocity="100" />
+            <calibration rising="0.0" />
+        </joint>
+    </xacro:macro>
+</robot>

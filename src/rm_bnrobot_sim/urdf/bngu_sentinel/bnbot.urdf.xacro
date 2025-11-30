@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="bngu_sentinel">
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/base.urdf.xacro" />
+    <!-- 传感器组件 -->
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/sensor/imu.urdf.xacro" />
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/sensor/laser.urdf.xacro" />
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/sensor/camera.urdf.xacro" />
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/sensor/mid360.urdf.xacro" /> 
+    
+     <!-- 执行器组件 -->
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/actuator/wheel.urdf.xacro" />
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/actuator/caster.urdf.xacro" />
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/actuator/wheel_s.urdf.xacro" />
+
+    
+    <xacro:base_xacro length="0.633" width="0.526" height="0.21" />
+    
+    <!-- 传感器 -->
+    <!-- <xacro:laser_xacro xyz="0 0 0.105" /> -->
+    <xacro:imu_xacro xyz="0 0 0.02" /> 
+    <!-- <xacro:imu_xacro xyz="0 0 0.02" /> -->
+    <!-- <xacro:imu_xacro xyz="0 0 0.02" /> -->
+    
+    <!-- <xacro:camera_xacro xyz="0.10 0 0.45" /> --> 
+    <xacro:mid360 name="mid360_laser" topic="/mid360/pointcloud"> <origin xyz="0.2665 0.0 0.145" rpy="0 0 0" /></xacro:mid360> 
+    <!-- 麦克纳姆轮配置，保持原有轮距参数 -->
+
+    <xacro:wheel_xacro wheel_name="front_left" xyz="0.235 -0.235 -0.105" yaw="0.7854" axis="-1 1 0" />
+    <xacro:wheel_xacro wheel_name="front_right" xyz="0.235 0.235 -0.105" yaw="2.3562" axis="1 1 0" />
+    <xacro:wheel_xacro wheel_name="rear_left" xyz="-0.235 -0.235 -0.105" yaw="-0.7854" axis="-1 -1 0" />
+    <xacro:wheel_xacro wheel_name="rear_right" xyz="-0.235 0.235 -0.105" yaw="-2.3562" axis="1 -1 0" />
+
+
+    <!-- Gazebo 插件 -->
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/plugins/gazebo_control_plugin.xacro" />
+    <xacro:gazebo_control_plugin /> <!-- 启用平面运动插件 -->
+    <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/bnbot.ros2_control.xacro" />
+    <xacro:bngu_sentinel_ros2_control />
+    <!-- <xacro:include filename="$(find rm_bnrobot_sim)/urdf/bngu_sentinel/plugins/gazebo_sensor_plugin.xacro" />
+    <xacro:gazebo_sensor_plugin />  -->
+</robot>
