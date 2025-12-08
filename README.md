@@ -1,14 +1,15 @@
 ## author 牢🐴
 
 # question
-- 部分依赖仍然存在问题
-- 雷达消息接口有问题,没有正常调入fast_lio的数据
-- 模拟数据训练还没整明白
+- 扫描高度
+- 只能完整一次完整避障
+- 上层规划
+
 
 # 基于ro2 和 nav2 自动巡检
 ## 1.项目介绍
-该项目基于肉丝2和nav2来实现多点自动巡检,
-目前处于大残状态，只能初步完成几个点之间的巡检，以及当到达对应点后传回相应信息，目前增加了到达目的地获取图像的功能（额因为视觉部分忘的有点多，所以暂时挂个在这，后面找视觉的人问问）
+该项目是基于肉丝2和nav2的哨兵导航
+
 ## 2.功能包介绍
 - rm_bnrobot_sim 机器人仿真
 - rm_bnrobot_nav 机器人导航
@@ -16,11 +17,12 @@
 - rm_interfaces  目标相关接口
 - livox_ros_driver2 雷达驱动
 - can_twist_node 指令发送节点
-- rm_bringup 一键启动功能包（暂不可用）
+- can_control    新的下发指令节点
+- rm_bringup 一键启动功能包（real可用）
 ## 3 安装依赖
 - 系统版本： Ubunt22.04     
 - ROS 版本：ROS 2 Humble
-本项目建图使用 slam-toolbox，fast_lio(暂不可用)，导航使用 Navigation 2 ,仿真采用 Gazebo，运动控制采用 ros2-control ，
+本项目建图使用 slam-toolbox，fast_lio，导航使用 Navigation 2 ,仿真采用 Gazebo，运动控制采用 ros2-control ，
 依赖：（没写到的只有去问豆包了）
 
 1. 安装基本依赖（slam_toolbox,nav2,ros2_control）
@@ -50,6 +52,16 @@ sudo apt install ros-humble-pointcloud-to-laserscan
 | `/cmd_vel` | `geometry_msgs/msg/Twist` | 麦克纳姆轮小车运动控制接口 |
 
 ## 2.3 运行
+
+### 1. 一键启动
+##### 实例模式
+```
+- ros2 launch livox_ros_driver2 msg_MID360_launch.py    # 启动雷达
+- ros2 launch real_bringup real_nav.launch.py           # 启动导航
+- ros2 run can_control can_control                      # 启动下发节点
+```
+
+### 2.单独启动
 1. rviz里显示机器人(非必要步骤，仅调试urdf时可方便查看)
 - 参数：model
 ```
