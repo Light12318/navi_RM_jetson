@@ -30,7 +30,7 @@ amcl:   #负责定位的
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
-    transform_tolerance: 0.3  # 修正：适配旋转时的TF延迟（原1.0太长）
+    transform_tolerance: 0.5  # 修正：适配旋转时的TF延迟（原1.0太长）
     update_min_a: 0.0  # 关键：被动旋转不触发定位更新（避免漂移）
     update_min_d: 0.15  # 小幅旋转/移动即更新定位（适配组合运动）
     z_hit: 0.8  # 提高有效扫描权重（抗被动旋转噪声）
@@ -40,7 +40,7 @@ amcl:   #负责定位的
     scan_topic: scan
     # 以下是新增的 IMU 配置（让 AMCL 订阅 /imu）
     use_imu: True  # 关键：启用 IMU 辅助定位
-    imu_topic: "/livox/imu"  # 你的 IMU 话题名（必须和实际发布的一致）
+    imu_topic: "/imu"  # 你的 IMU 话题名（必须和实际发布的一致）
     imu_angular_velocity_stddev: 0.01  # IMU 角速度噪声（根据硬件调整，比如 0.001~0.1）
     imu_linear_acceleration_stddev: 0.1  # IMU 线加速度噪声（不用可以设大些）
 
@@ -48,8 +48,8 @@ bt_navigator:
   ros__parameters:
     use_sim_time: False
     global_frame: map
-    robot_base_frame: base_footprint
-    odom_topic: /Odometry
+    robot_base_frame: base_link
+    odom_topic: /odom
     bt_loop_duration: 10
     default_server_timeout: 20
     wait_for_service_timeout: 1000
@@ -117,7 +117,6 @@ bt_navigator_navigate_to_pose_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: False
-    odom_topic: "/Odometry" 
     controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001
@@ -148,13 +147,13 @@ controller_server:
     FollowPath:   #执行路径时的一些相关配置
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: -0.26
-      min_vel_y: -0.20
-      max_vel_x: 0.26
-      max_vel_y: 0.20
+      min_vel_x: -1.01
+      min_vel_y: -1.01
+      max_vel_x: 1.01
+      max_vel_y: 1.01
       max_vel_theta: 0.8  # 启用主动旋转角速度（原0.0→0.8，可按云台性能调整）
       min_speed_xy: 0.0
-      max_speed_xy: 0.3
+      max_speed_xy: 1.5
       min_speed_theta: 0.0
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
@@ -193,16 +192,14 @@ local_costmap:
       update_frequency: 15.0
       publish_frequency: 5.0
       global_frame: odom
-      robot_base_frame: base_footprint
+      robot_base_frame: base_link
       use_sim_time: False
       rolling_window: true
       width: 8
       height: 8
       resolution: 0.05
       #robot_radius: 0.12
-      # local_costmap 和 global_costmap 中均替换为：
-      footprint: "[ [0.3165, 0.263], [0.3165, -0.263], [-0.3165, -0.263], [-0.3165, 0.263] ]"
-
+      footprint: "( (0.3165, 0.263), (0.3165, -0.263), (-0.3165, -0.263), (-0.3165, 0.263) )"
 
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
@@ -210,7 +207,7 @@ local_costmap:
         cost_scaling_factor: 4.0  # 膨胀代价衰减更快（原3.0→4.0，适配旋转）
         inflation_radius: 0.6    # 小幅缩小膨胀范围（给旋转留空间，原0.6→0.55）
       voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"  
+        plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
         publish_voxel_map: True
         origin_z: 0.0
@@ -240,11 +237,10 @@ global_costmap:
       update_frequency: 2.0
       publish_frequency: 2.0
       global_frame: map
-      robot_base_frame: base_footprint
+      robot_base_frame: base_link
       use_sim_time: False
       #robot_radius: 0.12
-      # local_costmap 和 global_costmap 中均替换为：
-      footprint: "[ [0.3165, 0.263], [0.3165, -0.263], [-0.3165, -0.263], [-0.3165, 0.263] ]"
+      footprint: "(0.3165, 0.263), (0.3165, -0.263), (-0.3165, -0.263), (-0.3165, 0.263)"
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -327,9 +323,9 @@ behavior_server:
     assisted_teleop:
       plugin: "nav2_behaviors/AssistedTeleop"
     global_frame: odom
-    robot_base_frame: base_footprint
+    robot_base_frame: base_link
     transform_tolerance: 0.3  # 适配旋转时的TF延迟（原0.1→0.3）
-    use_sim_time: true
+    use_sim_time: False
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
@@ -356,11 +352,11 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.26, 0.20, 0.8]  # 匹配主动旋转角速度上限（原0.0→0.8）
-    min_velocity: [-0.26, -0.20, -0.8]  # 修正无效值-0.0→-0.8
+    max_velocity: [1.01, 1.01, 0.8]  # 匹配主动旋转角速度上限（原0.0→0.8）
+    min_velocity: [-1.01, -1.01, -0.8]  # 修正无效值-0.0→-0.8
     max_accel: [2.5, 2.5, 0.6]  # 匹配旋转加速度（原0.0→0.6）
     max_decel: [-2.5, -2.5, -0.6]  # 匹配旋转减速度
-    odom_topic: "Odometry"
+    odom_topic: "odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0

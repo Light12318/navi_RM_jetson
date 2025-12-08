@@ -17,6 +17,7 @@ find_package(lifecycle_msgs)
 find_package(nav2_util REQUIRED) 
 find_package(rm_interfaces REQUIRED) 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
+find_package(OpenCV)
 
 add_executable(nav_pose src/nav_pose.cpp)
 add_executable(displayPose src/displayPose.cpp)
@@ -42,7 +43,7 @@ install(TARGETS nav_pose displayPose
 DESTINATION lib/${PROJECT_NAME})
 
 install(PROGRAMS
-  src/init_pose.py src/get_pose.py
+  src/init_pose.py src/get_pose.py src/pcd2map.py
   DESTINATION lib/${PROJECT_NAME} )
 
 

@@ -12,15 +12,17 @@ def generate_launch_description():
     default_map_path = os.path.join(nav_package_path, 'maps', 'room.yaml')
     nav2_params_path = os.path.join(real_nav_package_path, 'config', 'real_nav2_params.yaml')
     rviz2_path = os.path.join(nav_package_path, 'rviz', 'rviz2.rviz')
+    rviz2_path2 = os.path.join(real_nav_package_path, 'rviz', 'fastlio.rviz')
     
-    # Fast LIO 相关路径
+    
+    # Fast_lio 相关路径
     fast_lio_path = get_package_share_directory('fast_lio')
     fast_lio_config_path = os.path.join(real_nav_package_path, 'config')
 
     urdf_path = get_package_share_directory('rm_bnrobot_sim')
     model_path = urdf_path + '/urdf/bngu_sentinel/bnbot_real.urdf'
-    
-    # 为 Launch 声明参数
+
+
     mode_arg_path = launch.actions.DeclareLaunchArgument(
         name='model', default_value=str(model_path),
         description='URDF 的绝对路径'
@@ -53,7 +55,7 @@ def generate_launch_description():
     param_arg = launch.substitutions.LaunchConfiguration('param_file')
     use_fast_lio_arg = launch.substitutions.LaunchConfiguration('use_fast_lio')
 
-    # 获取文件内容生成新的参数
+
     robot_description = launch_ros.parameter_descriptions.ParameterValue(
         launch.substitutions.Command(
             ['xacro ', launch.substitutions.LaunchConfiguration('model')]),
@@ -67,22 +69,9 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description}]
     )
     
-    # 静态 TF 发布器
-    odom_camera_node = launch_ros.actions.Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='camera_init_to_odom',
-        arguments=['0', '0', '0', '0', '0', '0', 'camera_init', 'odom']
-    )
-    
-    odom_footprint_node = launch_ros.actions.Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='odom_to_base_footprint',
-        arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_footprint']
-    )
 
-    # Fast LIO 节点 - 现在直接输出，不使用 EKF
+
+    # Fast_lio 节点
     fast_lio_node = None
     if fast_lio_path:
         fast_lio_node = launch_ros.actions.Node(
@@ -91,48 +80,44 @@ def generate_launch_description():
             name='fast_lio',  
             output='screen',
             parameters=[
-                PathJoinSubstitution([fast_lio_config_path, 'mid360_real.yaml']),  # 配置文件优先（如激光参数、IMU参数）
+                PathJoinSubstitution([fast_lio_config_path, 'mid360_real.yaml']), 
                 {
-                    # 1. 时间配置（实车设 False，仿真设 True）
+                    # 1. 时间配置
                     'use_sim_time': use_sim_arg,
                     'use_system_time': False,
                     
-                    # 2. 核心映射：camera_init → map，body → base_link（关键参数）
-                    'publish_frame_id': 'map',          # 父帧：原 camera_init 直接映射为 map
-                    'child_frame_id': 'base_link',       # 子帧：原 body 直接映射为 base_link
-                    'publish_tf': True,                  # 启用 TF 发布（发布 map → base_link）
+                    'publish_frame_id': 'map',         
+                    'child_frame_id': 'base_link',       
+                    'publish_tf': True,                
                     
-                    # 3. 里程计发布（适配 map 帧，可选但建议开启）
-                    'publish_odom': True,                # 启用里程计发布
-                    'odom_topic': '/odom',               # 里程计话题（Nav2 可订阅）
-                    'odom_frame_id': 'map',              # 里程计父帧 = map（与 publish_frame_id 一致）
-                    'base_link_frame_id': 'base_link',   # 里程计子帧 = base_link（与 child_frame_id 一致）
+                    # 3. 里程计发布
+                    'publish_odom': True,               
+                    'odom_topic': '/odom',               
+                    'odom_frame_id': 'map',             
+                    'base_link_frame_id': 'base_link',  
                     
-                    # 4. 外参配置（修正格式，避免解析错误）
-                    # 说明：extrinsic_T/R 是 LiDAR 相对于 IMU 的变换（若纯 LiDAR 模式，则是 LiDAR 相对于 base_link 的变换）
-                    'extrinsic_T': [0.0, 0.0, 0.0],      # 平移：x,y,z（单位：米，无偏移则设为 0）
-                    'extrinsic_R': [0.0, 0.0, 0.0, 1.0], # 旋转：四元数（x,y,z,w），单位矩阵对应此值（无旋转）
-                    # （若 LiDAR 安装有偏移，比如高 0.5 米 → extrinsic_T: [0.0, 0.0, 0.5]）
+                    
+                    'extrinsic_T': [0.0, 0.0, 0.0],     
+                    'extrinsic_R': [0.0, 0.0, 0.0, 1.0], #
+             
                     
                     # 5. 其他辅助参数
                     'publish_rate': 50.0,                # TF/里程计发布频率
                 }
             ],
             remappings=[
-                # 无需额外重映射，直接发布目标帧和话题
+        
             ],
             condition=launch.conditions.IfCondition(use_fast_lio_arg)
         )
-
-    # pointcloud_to_laserscan 节点 - 使用 base_footprint 作为目标坐标系
     pointcloud_to_laserscan_node = launch_ros.actions.Node(
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
         name='pointcloud_to_laserscan',
         output='screen',
         parameters=[{
-            'target_frame': 'base_footprint',      # 使用 base_footprint
-            'transform_tolerance': 0.5,            # 增加容忍时间
+            'target_frame': 'mid360',      
+            'transform_tolerance': 0.5,            
             'min_height': 0.0,
             'max_height': 2.0,
             'angle_min': -3.14159,
@@ -176,7 +161,7 @@ def generate_launch_description():
         output='screen'
     )
 
-    # 定义启动描述
+
     ld = launch.LaunchDescription([
         declare_map_path,
         declare_use_sim_time,
@@ -185,23 +170,21 @@ def generate_launch_description():
         mode_arg_path
     ])
 
-    # 第一步：启动所有静态 TF
+    # 静态 TF
     ld.add_action(robot_state_publisher_node)  
-    # ld.add_action(odom_camera_node)  
-    # ld.add_action(odom_footprint_node)  
-    
-    # 第二步：启动 Fast LIO（直接输出）
+
+    # Fast LIO
     if fast_lio_node:
         ld.add_action(fast_lio_node)
     
-    # 第三步：延迟启动激光转扫描
+    # 延迟启动激光转扫描
     if pointcloud_to_laserscan_node:
         ld.add_action(launch.actions.TimerAction(
             period=2.0,
             actions=[pointcloud_to_laserscan_node]
         ))
 
-    # 第四步：延迟启动导航和 RViz
+    # 延迟启动导航和 RViz
     ld.add_action(launch.actions.TimerAction(
         period=5.0,
         actions=[navi_group, rviz_node]

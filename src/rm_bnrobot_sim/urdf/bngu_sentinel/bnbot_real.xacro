@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot name="fishbot" xmlns:xacro="http://ros.org/wiki/xacro" ns="fishbot">
+<robot name="bnbot" xmlns:xacro="http://ros.org/wiki/xacro" ns="bnbot">
 
   <!-- 1. 提取可配置参数（后续修改直接改这里，无需动结构） -->
   <xacro:property name="M_PI" value="3.1415926" />  <!-- 通用常量 -->
