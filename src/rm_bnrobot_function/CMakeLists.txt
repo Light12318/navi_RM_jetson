@@ -44,7 +44,7 @@ install(TARGETS nav_pose displayPose
 DESTINATION lib/${PROJECT_NAME})
 
 install(PROGRAMS
-  src/init_pose.py src/get_pose.py src/pcd2map.py
+  src/init_pose.py src/get_pose.py src/pcd2map.py src/add_normal.py rm_bnrobot_function/asr_nav.py
   DESTINATION lib/${PROJECT_NAME} )
 
 

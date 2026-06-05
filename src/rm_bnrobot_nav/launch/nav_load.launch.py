@@ -10,6 +10,8 @@ def generate_launch_description():
     default_map_path=os.path.join(nav_package_path,'maps','room.yaml')
     nav2_params_path=os.path.join(nav_package_path,'config','nav2_params.yaml')
     rviz2_path=os.path.join(nav_package_path,'rviz','rviz2.rviz')
+    simbringup_path=get_package_share_directory('sim_bringup')
+    nav2_params_path2=os.path.join(simbringup_path,'config','sim_nav_params.yaml')
 
     declare_use_sim_time = launch.actions.DeclareLaunchArgument(
         'use_sim_time',
@@ -23,7 +25,7 @@ def generate_launch_description():
     )
     declare_params_path = launch.actions.DeclareLaunchArgument(
         'param_file',
-        default_value=nav2_params_path,  
+        default_value=nav2_params_path2,  
         description='导航参数文件路径'
     )
     use_sim_arg=launch.substitutions.LaunchConfiguration('use_sim_time')

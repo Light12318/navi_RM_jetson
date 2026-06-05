@@ -140,16 +140,16 @@ controller_server:
     general_goal_checker:     #判断精度
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.05
       yaw_goal_tolerance: 6.28  # 360°朝向容忍（兼容任意旋转角度）
       yaw_goal_tolerance_angular_vel: 0.5  # 旋转停止判定阈值
     # DWB parameters（支持主动旋转+被动旋转兼容）
     FollowPath:   #执行路径时的一些相关配置
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: -0.26
-      min_vel_y: -0.20
-      max_vel_x: 0.26
+      min_vel_x: -0.40
+      min_vel_y: -0.40
+      max_vel_x: 0.40
       max_vel_y: 0.20
       max_vel_theta: 0.8  # 启用主动旋转角速度（原0.0→0.8，可按云台性能调整）
       min_speed_xy: 0.0
@@ -352,8 +352,8 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.26, 0.20, 0.8]  # 匹配主动旋转角速度上限（原0.0→0.8）
-    min_velocity: [-0.26, -0.20, -0.8]  # 修正无效值-0.0→-0.8
+    max_velocity: [0.40, 0.40, 0.8]  # 匹配主动旋转角速度上限（原0.0→0.8）
+    min_velocity: [-0.40, -0.40, -0.8]  # 修正无效值-0.0→-0.8
     max_accel: [2.5, 2.5, 0.6]  # 匹配旋转加速度（原0.0→0.6）
     max_decel: [-2.5, -2.5, -0.6]  # 匹配旋转减速度
     odom_topic: "odom"

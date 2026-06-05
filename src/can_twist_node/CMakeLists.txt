@@ -8,6 +8,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(rm_interfaces REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
@@ -26,6 +27,7 @@ target_compile_features(can_twist_node PRIVATE cxx_std_20)
 ament_target_dependencies(can_twist_node 
   rclcpp 
   geometry_msgs
+  rm_interfaces
 )
 target_link_libraries(can_twist_node 
   ${LIBUSB_LIBRARIES}
@@ -38,6 +40,10 @@ install(TARGETS
 
 install(DIRECTORY include/
   DESTINATION include/
+)
+
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
 )
 
 ament_package()

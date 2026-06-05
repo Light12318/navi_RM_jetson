@@ -25,13 +25,13 @@
 
 
   <!-- 2. 雷达模型-->
-  <xacro:macro name="mid360" params=" name:='mid360_laser' parent:='base_link' topic:='/mid360/pointcloud' *origin">
+  <xacro:macro name="mid360" params=" name:='mid360_laser' parent:='base_link' topic:='/livox/lidar' *origin">
     <link name="${name}">
       <visual>
         <!-- 雷达自身坐标系到link的偏移-->
         <origin xyz="0.025 -0.0265 -0.025" rpy="${M_PI/2} 0 ${M_PI}"/>
         <geometry>
-          <mesh filename="file:///home/mage/navigation/nav_RM_4/src/rm_bnrobot_sim/meshes/mid360.stl" scale="0.0008 0.0008 0.0008"/>
+          <mesh filename="file:///home/nav2/navigation_2027/navi_rm_0/src/rm_bnrobot_sim/meshes/mid360.stl" scale="0.0008 0.0008 0.0008"/>
         </geometry>
         <material name="black">
           <color rgba="0.8 0.8 0.8 0.8"/> 
@@ -105,7 +105,7 @@
           </ray>
           
 
-          <visualize>false</visualize> <!-- 点云可视化由RViz负责，Gazebo中关闭 -->
+          <visualize>true</visualize> <!-- 点云可视化由RViz负责，Gazebo中关闭 -->
           <samples>${horizontal_samples * vertical_samples}</samples> <!-- 总采样数 -->
           <downsample>${downsample_rate}</downsample> <!-- 降采样 -->
           <csv_file_name>$(find rm_bnrobot_sim)/scan_mode/mid360.csv</csv_file_name> 扫描模式配置文件

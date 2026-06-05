@@ -44,13 +44,13 @@ def pcd2occupancy_grid(pcd_path, save_dir, resolution=0.05, z_min=-0.5, z_max=1.
         if 0 <= row < height and 0 <= col < width:
             grid[row, col] = 0  # 障碍物标记为0
 
-    # 5. 保存PGM文件（OpenCV自动处理格式）
+    # 5. 保存PGM文件
     save_dir = Path(save_dir)
     save_dir.mkdir(exist_ok=True, parents=True)
     pgm_path = save_dir / "map.pgm"
     cv2.imwrite(str(pgm_path), grid)
 
-    # 6. 生成Nav2兼容的YAML配置
+    # 6. 生成YAML
     yaml_data = {
         "image": pgm_path.name,
         "resolution": resolution,
@@ -64,7 +64,7 @@ def pcd2occupancy_grid(pcd_path, save_dir, resolution=0.05, z_min=-0.5, z_max=1.
         yaml.dump(yaml_data, f, sort_keys=False, indent=2)
 
     # 打印结果
-    print(f"✅ 转换完成！")
+    print(f"转换完成！")
     print(f"  - 输入PCD：{pcd_path}（点云数量：{len(points)} → 过滤后：{len(filtered_points)}）")
     print(f"  - 输出PGM：{pgm_path}（尺寸：{width}×{height} 像素）")
     print(f"  - 输出YAML：{yaml_path}")
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     if args.params:
         with open(args.params, "r", encoding="utf-8") as f:
             params = yaml.safe_load(f)
-        print(f"📌 加载参数文件：{args.params}")
+        print(f"加载参数文件：{args.params}")
 
     # 优先级：命令行参数 > 参数文件 > 默认值
     pcd_path = args.pcd or params.get("pcd_path")

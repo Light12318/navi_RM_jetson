@@ -4,7 +4,7 @@
     <xacro:macro name="imu_xacro" params="xyz">
         <link name="imu_link">
             <visual>
-                <origin xyz="0 0 00" rpy="0 0 0" />
+                <origin xyz="0 0 0" rpy="0 0 0" />
                 <geometry>
                     <box size="0.02 0.02 0.02" />
                 </geometry>
@@ -27,7 +27,7 @@
         <joint name="imu_joint" type="fixed">
             <parent link="base_link" />
             <child link="imu_link" />
-            <origin xyz="${xyz}" />
+            <origin xyz="${xyz}" rpy="${M_PI} 0 ${M_PI/2}" />
         </joint>
     </xacro:macro>
 </robot>

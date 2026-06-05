@@ -21,7 +21,7 @@
                 </geometry>
             </collision>
             
-            <xacro:cylinder_inertia m="0.1" h="0.04" r="0.055"/> 
+            <xacro:cylinder_inertia m="0.6" h="0.04" r="0.055"/> 
         </link>
         
         <!-- Gazebo物理参数 -->

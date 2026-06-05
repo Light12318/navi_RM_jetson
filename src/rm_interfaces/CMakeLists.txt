@@ -11,6 +11,9 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Simple.srv"
   "msg/Goal.msg"
+  "msg/GamePara.msg"
+  "msg/OwnPara.msg"
+  "msg/AllyPara.msg"
 )
 
 if(BUILD_TESTING)

@@ -1,7 +1,7 @@
-image: /home/mage/navigation/nav_RM_4/src/rm_bnrobot_nav/maps/room.pgm
+image: /home/nav2/navigation_2027/navi_rm_0/src/rm_bnrobot_nav/maps/room.pgm
 mode: trinary      #3,应该就是3种颜色表现3种不同地形吧
 resolution: 0.05      #分辨率
-origin: [-2.32, 1.43, 0]   #坐标原点，单位m
+origin: [-10.13, -6.34, 0]   #坐标原点，单位m rigin: [-2.32, 1.43, 0]
 negate: 0                   #是否取反，不求晓得shisa 
 occupied_thresh: 0.65       #占用状态+
 free_thresh: 0.25           #自由状态 
